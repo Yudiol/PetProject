@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  tomcat:
+    image: tomcat:9.0.68
+    ports:
+      - '8080:8080'
+    volumes:
+      - "./target/PetProject.war:/usr/local/tomcat/webapps/ROOT.war"
+    restart: on-failure
