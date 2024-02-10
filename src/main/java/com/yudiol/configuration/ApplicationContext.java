@@ -1,4 +1,4 @@
-package com.yudiol.config;
+package com.yudiol.configuration;
 
 import com.yudiol.annotation.Configuration;
 import com.yudiol.annotation.Instance;
@@ -7,15 +7,15 @@ import org.reflections.Reflections;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ApplicationContext {
 
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new ConcurrentHashMap<>();
 
     public ApplicationContext() throws InvocationTargetException, IllegalAccessException {
         Reflections reflections = new Reflections("com.yudiol.configuration");

@@ -1,5 +1,6 @@
 package com.yudiol.config;
 
+import com.yudiol.configuration.ApplicationContext;
 import com.yudiol.service.impl.SupportService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

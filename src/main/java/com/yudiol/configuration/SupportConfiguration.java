@@ -12,6 +12,11 @@ import com.yudiol.service.impl.SupportService;
 public class SupportConfiguration {
 
     @Instance
+    public HelperRepository helperRepository() {
+        return new HelperRepository();
+    }
+
+    @Instance
     public HelperService helperService(HelperRepository helperRepository) {
         return new HelperServiceImpl(helperRepository);
     }
@@ -27,7 +32,7 @@ public class SupportConfiguration {
     }
 
     @Instance
-    public HelperRepository helperRepository() {
-        return new HelperRepository();
+    public HandlerMapping handlerMapping() {
+        return new HandlerMapping();
     }
 }
