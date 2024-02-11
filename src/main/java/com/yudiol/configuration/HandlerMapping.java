@@ -1,14 +1,15 @@
 package com.yudiol.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yudiol.annotation.GetMapping;
-import com.yudiol.annotation.PostMapping;
 import com.yudiol.annotation.RestController;
+import com.yudiol.provider.ProviderHandlerMapping;
 import org.reflections.Reflections;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -27,43 +28,42 @@ public class HandlerMapping {
                 .stream().flatMap(type -> Arrays.stream(type.getDeclaredMethods())).toList();
 
         for (Method method : methods) {
-            if (method.isAnnotationPresent(GetMapping.class)) {
-                String paths = "GET" + method.getAnnotation(GetMapping.class).path();
-                endpoints.put(paths, method);
+            Annotation[] annotations = method.getAnnotations();
+            String paths = null;
+            if (annotations.length == 0) {
+                continue;
             }
-            if (method.isAnnotationPresent(PostMapping.class)) {
-                String paths = "POST" + method.getAnnotation(PostMapping.class).path();
-                endpoints.put(paths, method);
-                parameters.put(paths, Arrays.stream(method.getParameters()).map(Parameter::getType).toArray());
-            }
+            paths = new ProviderHandlerMapping().getProvider(annotations, method);
+            endpoints.put(paths, method);
+            parameters.put(paths, Arrays.stream(method.getParameters()).map(Parameter::getType).toArray());
         }
     }
-
 
     public Method getMethod(HttpServletRequest request) {
         String key = request.getMethod() + request.getRequestURI();
         return endpoints.get(key);
     }
 
-    public Object[] getArgs(HttpServletRequest request) throws IOException {
+    public Object[] getArgs(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Object[] args = null;
+        String key = request.getMethod() + request.getRequestURI();
 
-        BufferedReader reader = request.getReader();
-        StringBuilder jsonInput = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            jsonInput.append(line);
+        if (parameters.get(key).length == 0) {
+            return args;
         }
 
-        String path = request.getRequestURI();
-        String meth = request.getMethod();
-        String key = meth + path;
+        BufferedReader reader = request.getReader();
+        StringBuilder phrase = new StringBuilder();
+        String line;
 
-        Object[] args = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        if (meth.equals("POST")) {
+        while ((line = reader.readLine()) != null) {
+            phrase.append(line);
+        }
+        try {
             Class<?> parameterType = (Class<?>) parameters.get(key)[0];
-            args = new Object[]{objectMapper.readValue(jsonInput.toString(), parameterType)};
+            args = new Object[]{new ObjectMapper().readValue(phrase.toString(), parameterType)};
+        } catch (Exception e) {
+            response.setStatus(400);
         }
         return args;
     }

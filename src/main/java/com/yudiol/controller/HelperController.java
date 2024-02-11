@@ -15,12 +15,13 @@ public class HelperController {
     private final HelperService helperService;
 
     @PostMapping(path = "/help-service/v1/support")
-    public void create(Phrase phrase) {
-        helperService.addPhrase(phrase.text());
+    public void add(Phrase phrase) {
+        helperService.addPhrase(phrase);
     }
 
     @GetMapping(path = "/help-service/v1/support")
     public Phrase get() {
-        return new Phrase(helperService.getRandomPhrase());
+        return helperService.getRandomPhrase();
     }
+
 }

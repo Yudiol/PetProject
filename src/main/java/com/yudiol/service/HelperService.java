@@ -1,10 +1,13 @@
 package com.yudiol.service;
 
 
+import com.yudiol.annotation.Logged;
+import com.yudiol.model.Phrase;
+
+@Logged
 public interface HelperService {
 
-    String getRandomPhrase();
+    Phrase getRandomPhrase();
 
-    void addPhrase(String phrase);
-
+    void addPhrase(Phrase phrase);
 }

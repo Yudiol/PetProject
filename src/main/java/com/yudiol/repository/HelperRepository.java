@@ -8,7 +8,6 @@ public class HelperRepository {
     AtomicInteger number = new AtomicInteger(-1);
     Map<Integer, String> phrases = new ConcurrentHashMap<>();
 
-
     {
         phrases.put(number.incrementAndGet(), "Всё будет хорошо");
         phrases.put(number.incrementAndGet(), "Ура!!!");
@@ -25,5 +24,4 @@ public class HelperRepository {
     public Integer getSize() {
         return phrases.size();
     }
-
 }

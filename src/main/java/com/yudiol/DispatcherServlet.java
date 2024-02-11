@@ -3,9 +3,6 @@ package com.yudiol;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yudiol.configuration.ApplicationContext;
 import com.yudiol.configuration.HandlerMapping;
-import com.yudiol.controller.HelperController;
-import com.yudiol.repository.HelperRepository;
-import com.yudiol.service.HelperService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -24,13 +21,8 @@ public class DispatcherServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         try {
+            mapping = new HandlerMapping();
             context = new ApplicationContext();
-
-            context.getInstance(HelperService.class);
-            context.getInstance(HelperRepository.class);
-            context.getInstance(HelperController.class);
-            mapping = context.getInstance(HandlerMapping.class);
-
         } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -41,14 +33,13 @@ public class DispatcherServlet extends HttpServlet {
 
         response.setContentType("application/json;charset=UTF-8");
         Method method = mapping.getMethod(request);
-
         if (method != null) {
             try {
-                Object result = method.invoke(context.getInstance(method.getDeclaringClass()), mapping.getArgs(request));
+                Object result = method.invoke(context.getInstance(method.getDeclaringClass()), mapping.getArgs(request,response));
                 if (result != null) {
                     response.getWriter().write(objectMapper.writeValueAsString(result));
                 }
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {

@@ -2,6 +2,10 @@ package com.yudiol.configuration;
 
 import com.yudiol.annotation.Configuration;
 import com.yudiol.annotation.Instance;
+import com.yudiol.annotation.Logged;
+import com.yudiol.service.HelperService;
+import com.yudiol.service.impl.LoggingManager;
+import lombok.Setter;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
@@ -23,13 +27,7 @@ public class ApplicationContext {
                 .stream().map(type -> {
                     try {
                         return type.getDeclaredConstructor().newInstance();
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchMethodException e) {
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                         e.printStackTrace();
                     }
                     return null;
@@ -41,18 +39,33 @@ public class ApplicationContext {
             List<Method> methodsWithoutParams = methods.stream().filter(method -> method.getParameters().length == 0).toList();
             List<Method> methodsWithParams = methods.stream().filter(method -> method.getParameters().length > 0).toList();
 
-
             for (Method methodsWithoutParam : methodsWithoutParams) {
-                instances.put(methodsWithoutParam.getReturnType(), methodsWithoutParam.invoke(configuration));
+                Object instance = addProxy(methodsWithoutParam, configuration, null);
+                instances.put(methodsWithoutParam.getReturnType(), instance);
             }
 
             for (Method methodsWithParam : methodsWithParams) {
                 Object[] objects = Arrays.stream(methodsWithParam.getParameters())
                         .map(param -> instances.get(param.getType()))
                         .toArray();
-                instances.put(methodsWithParam.getReturnType(), methodsWithParam.invoke(configuration, objects));
+                Object instance = addProxy(methodsWithParam, configuration, objects);
+                instances.put(methodsWithParam.getReturnType(), instance);
             }
         }
+    }
+
+    private Object addProxy(Method method, Object configuration, Object[] objects) throws InvocationTargetException, IllegalAccessException {
+        Object instance = null;
+        if (method.getReturnType().isAnnotationPresent(Logged.class)) {
+            instance = wrapWithLoggingProxy(method.invoke(configuration, objects));
+        } else {
+            instance = method.invoke(configuration, objects);
+        }
+        return instance;
+    }
+
+    private Object wrapWithLoggingProxy(Object object) {
+        return new LoggingManager((HelperService) object);
     }
 
     public <T> T getInstance(Class<T> clazz) {
