@@ -1,53 +1,68 @@
 package com.yudiol.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yudiol.model.Phrase;
 import com.yudiol.service.HelperService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ExtendWith(MockitoExtension.class)
+
+@WebMvcTest
 public class HelperControllerTest {
 
-    @Mock
+    @MockBean
     private HelperService helperService;
 
-    @InjectMocks
-    private HelperController helperController;
+    @Autowired
+    private MockMvc mockMvc;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private Phrase phrase = null;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         phrase = new Phrase("Hello");
     }
 
+
     @Test
-    public void add_whenInvoked_thenAddPhrase() {
+    public void add_whenInvoked_thenAddPhrase() throws Exception {
 
-        helperController.add(phrase);
+        String jsonPhrase = objectMapper.writeValueAsString(phrase);
 
-        verify(helperService, times(1)).addPhrase(phrase);
+        mockMvc.perform(post("/help-service/v1/support")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonPhrase))
+                .andExpect(status().isAccepted());
+
+        verify(helperService, (times(1))).sendPhraseToBroker(phrase);
     }
 
     @Test
-    public void get_whenInvoked_thenReturnedPhrase() {
+    public void get_whenInvoked_thenReturnedPhrase() throws Exception {
 
         when(helperService.getRandomPhrase()).thenReturn(phrase);
 
-        Phrase result = helperController.get();
+        mockMvc.perform(get("/help-service/v1/support")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect((ResultMatcher) jsonPath("$.text").value("Hello"));
 
-        assertNotNull(result);
-        assertEquals(phrase.text(), result.text());
         verify(helperService, times(1)).getRandomPhrase();
     }
 }

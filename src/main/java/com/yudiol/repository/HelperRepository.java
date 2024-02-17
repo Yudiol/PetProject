@@ -1,27 +1,14 @@
 package com.yudiol.repository;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.yudiol.annotation.Logged;
 
-public class HelperRepository {
-    AtomicInteger number = new AtomicInteger(-1);
-    Map<Integer, String> phrases = new ConcurrentHashMap<>();
+public interface HelperRepository {
 
-    {
-        phrases.put(number.incrementAndGet(), "Всё будет хорошо");
-        phrases.put(number.incrementAndGet(), "Ура!!!");
-    }
+    @Logged(message = "Случайная фраза взята из базы данных")
+    String findById(Integer id);
 
-    public String findById(Integer id) {
-        return phrases.get(id);
-    }
+    @Logged(message = "Новая фраза добавлена в базу данных")
+    void addPhrase(String phrase);
 
-    public void addPhrase(String phrase) {
-        phrases.put(number.incrementAndGet(), phrase);
-    }
-
-    public Integer getSize() {
-        return phrases.size();
-    }
+    Integer getSize();
 }

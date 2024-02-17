@@ -1,27 +1,31 @@
 package com.yudiol.controller;
 
-import com.yudiol.annotation.GetMapping;
-import com.yudiol.annotation.PostMapping;
-import com.yudiol.annotation.RestController;
 import com.yudiol.model.Phrase;
 import com.yudiol.service.HelperService;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping(path = "/help-service/v1/support")
 public class HelperController {
-
     private final HelperService helperService;
 
-    @PostMapping(path = "/help-service/v1/support")
-    public void add(Phrase phrase) {
-        helperService.addPhrase(phrase);
+    @PostMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void add(@RequestBody Phrase phrase) {
+        helperService.sendPhraseToBroker(phrase);
     }
 
-    @GetMapping(path = "/help-service/v1/support")
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Phrase get() {
         return helperService.getRandomPhrase();
     }
-
 }

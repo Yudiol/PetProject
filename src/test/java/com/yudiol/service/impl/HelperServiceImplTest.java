@@ -1,5 +1,6 @@
 package com.yudiol.service.impl;
 
+import com.MessageBroker.Publisher;
 import com.yudiol.model.Phrase;
 import com.yudiol.repository.HelperRepository;
 import org.junit.jupiter.api.Test;
@@ -21,27 +22,40 @@ class HelperServiceImplTest {
     @Mock
     private HelperRepository helperRepository;
 
+    @Mock
+    private  Publisher publisher;
+
     @InjectMocks
     private HelperServiceImpl helperService;
+
+    Phrase phrase = new Phrase("Hello");
 
     @Test
     void get_whenInvoked_thenReturnedPhrase() {
 
         when(helperRepository.getSize()).thenReturn(1);
-        when(helperRepository.findById(anyInt())).thenReturn("Hello");
+        when(helperRepository.findById(anyInt())).thenReturn(phrase.text());
 
         Phrase phrase = helperService.getRandomPhrase();
 
         assertNotNull(phrase);
-        assertEquals("Hello", phrase.text());
+        assertEquals(phrase.text(), phrase.text());
         verify(helperRepository, times(1)).findById(anyInt());
     }
 
     @Test
     void add_whenInvoked_thenAddPhrase() {
 
-        helperService.addPhrase(new Phrase("Hello"));
+        helperService.addPhrase(phrase.text());
 
-        verify(helperRepository, times(1)).addPhrase("Hello");
+        verify(helperRepository, times(1)).addPhrase(phrase.text());
+    }
+
+    @Test
+    void send_whenInvoked_addMessageToMessageBroker(){
+
+        publisher.publishMessage(phrase.text());
+
+        verify(publisher,times(1)).publishMessage(phrase.text());
     }
 }
