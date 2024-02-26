@@ -1,6 +1,5 @@
 package com.yudiol.repository.Impl;
 
-import com.yudiol.annotation.Logged;
 import com.yudiol.repository.HelperRepository;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +21,16 @@ public class HelperRepositoryImpl implements HelperRepository {
         return phrases.get(id);
     }
 
+
+    public boolean isExist(String phrase) {
+        return phrases.containsValue(phrase);
+    }
+
     public void addPhrase(String phrase) {
-        phrases.put(number.incrementAndGet(), phrase);
+        if (!isExist(phrase)) {
+            phrases.put(number.incrementAndGet(), phrase);
+        }
+
     }
 
     public Integer getSize() {

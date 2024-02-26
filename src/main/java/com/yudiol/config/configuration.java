@@ -1,26 +1,22 @@
 package com.yudiol.config;
 
-import com.MessageBroker.CreatorOfSender;
-import com.MessageBroker.Impl.CreatorOfSenderImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationContext;
+import com.yudiol.repository.HelperRepository;
+import com.yudiol.service.HelperService;
+import com.yudiol.service.JsonKafkaProducer;
+import com.yudiol.service.impl.KafkaServiceImpl;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
-@ComponentScan(basePackages = "com.MessageBroker")
-@RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "kafka-broker", name = "enabled", matchIfMissing = true)
 public class configuration {
 
-    private final ApplicationContext applicationContext;
-
     @Bean
-    public CreatorOfSender creatorOfSender(Object object) {
-        var objects = new HashSet<>(applicationContext.getBeansWithAnnotation(Service.class).values());
-        return new CreatorOfSenderImpl(objects);
+    @Primary
+    public HelperService helperService(HelperRepository helperRepository, JsonKafkaProducer jsonKafkaProducer) {
+        return new KafkaServiceImpl(helperRepository, jsonKafkaProducer);
+
     }
 }

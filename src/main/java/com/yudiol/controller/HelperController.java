@@ -20,7 +20,7 @@ public class HelperController {
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void add(@RequestBody Phrase phrase) {
-        helperService.sendPhraseToBroker(phrase);
+        helperService.addPhrase(phrase);
     }
 
     @GetMapping
