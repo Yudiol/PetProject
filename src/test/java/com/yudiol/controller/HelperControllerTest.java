@@ -17,8 +17,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @WebMvcTest
@@ -30,7 +30,8 @@ public class HelperControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Phrase phrase = null;
 
@@ -50,7 +51,7 @@ public class HelperControllerTest {
                         .content(jsonPhrase))
                 .andExpect(status().isAccepted());
 
-        verify(helperService, (times(1))).sendPhraseToBroker(phrase);
+        verify(helperService, (times(1))).addPhrase(phrase);
     }
 
     @Test

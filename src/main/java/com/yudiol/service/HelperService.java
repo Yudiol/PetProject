@@ -7,9 +7,5 @@ public interface HelperService {
 
     Phrase getRandomPhrase();
 
-    void sendPhraseToBroker(Phrase phrase);
-
-    void addPhrase(String message);
-
-
+    void addPhrase(Phrase phrase);
 }

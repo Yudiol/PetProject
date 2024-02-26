@@ -1,0 +1,11 @@
+kafka-broker:
+  enabled: true
+
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: "latest"
+      bootstrap-servers: "127.0.0.1:9092"
+      group-id: "MyGroup"
+    producer:
+      bootstrap-servers: "127.0.0.1:9092"

@@ -5,11 +5,10 @@ import com.yudiol.repository.HelperRepository;
 import com.yudiol.service.HelperService;
 import com.yudiol.service.JsonKafkaProducer;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.kafka.annotation.KafkaListener;
 
-@Service
 @RequiredArgsConstructor
-public class HelperServiceImpl implements HelperService {
+public class KafkaServiceImpl implements HelperService {
 
     private final HelperRepository helperRepository;
     private final JsonKafkaProducer jsonKafkaProducer;
@@ -19,14 +18,12 @@ public class HelperServiceImpl implements HelperService {
         return new Phrase(helperRepository.findById(random));
     }
 
-    public void addPhrase(Phrase phrase) {
-        checkIfPhraseExistInStorage(phrase);
+    @KafkaListener(topics = "phrase_json", groupId = "MyGroup", autoStartup = "${kafka-broker.enabled}")
+    public void addPhraseToDB(Phrase phrase) {
         helperRepository.addPhrase(phrase.text());
     }
 
-    private void checkIfPhraseExistInStorage(Phrase phrase) {
-        if (!helperRepository.isExist(phrase.text())) {
-            jsonKafkaProducer.sendMessage(phrase);
-        }
+    public void addPhrase(Phrase phrase) {
+        jsonKafkaProducer.sendMessage(phrase);
     }
 }
