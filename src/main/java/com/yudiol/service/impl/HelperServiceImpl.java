@@ -1,5 +1,6 @@
 package com.yudiol.service.impl;
 
+
 import com.yudiol.model.Phrase;
 import com.yudiol.repository.HelperRepository;
 import com.yudiol.service.HelperService;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Service;
 public class HelperServiceImpl implements HelperService {
 
     private final HelperRepository helperRepository;
+
     private final JsonKafkaProducer jsonKafkaProducer;
+
 
     public Phrase getRandomPhrase() {
         int random = (int) (Math.random() * helperRepository.getSize());
@@ -28,5 +31,6 @@ public class HelperServiceImpl implements HelperService {
         if (!helperRepository.isExist(phrase.text())) {
             jsonKafkaProducer.sendMessage(phrase);
         }
+
     }
 }

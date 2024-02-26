@@ -21,6 +21,7 @@ public class HelperRepositoryImpl implements HelperRepository {
         return phrases.get(id);
     }
 
+
     public boolean isExist(String phrase) {
         return phrases.containsValue(phrase);
     }
@@ -29,6 +30,7 @@ public class HelperRepositoryImpl implements HelperRepository {
         if (!isExist(phrase)) {
             phrases.put(number.incrementAndGet(), phrase);
         }
+
     }
 
     public Integer getSize() {

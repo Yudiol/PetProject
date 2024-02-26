@@ -9,4 +9,5 @@ public interface HelperRepository {
     Integer getSize();
 
     boolean isExist(String phrase);
+
 }

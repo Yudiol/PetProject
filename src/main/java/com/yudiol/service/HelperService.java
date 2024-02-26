@@ -6,6 +6,7 @@ import com.yudiol.model.Phrase;
 public interface HelperService {
 
     Phrase getRandomPhrase();
-
+  
     void addPhrase(Phrase phrase);
+
 }

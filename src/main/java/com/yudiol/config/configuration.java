@@ -17,5 +17,6 @@ public class configuration {
     @Primary
     public HelperService helperService(HelperRepository helperRepository, JsonKafkaProducer jsonKafkaProducer) {
         return new KafkaServiceImpl(helperRepository, jsonKafkaProducer);
+
     }
 }
